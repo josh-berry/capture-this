@@ -1,0 +1,55 @@
+{
+    "manifest_version": 2,
+    "name": "Capture This",
+    "version": "0.9",
+    "description": "Capture text from a page and send it to the URL of your choice",
+    "homepage_url": "https://github.com/josh-berry/capture-this/",
+    "icons": {
+        "48": "icons/logo.svg",
+        "96": "icons/logo.svg"
+    },
+    "applications": {
+        "gecko": {
+            "id": "capture-this@josh-berry.github.io",
+            "strict_min_version": "61.0"
+        }
+    },
+    "permissions": [
+        "activeTab",
+        "storage"
+    ],
+    "content_security_policy":
+        "script-src 'self' 'unsafe-eval'; object-src 'self';",
+    "background": {
+        "scripts": ["index.js"]
+    },
+    "browser_action": {
+        "default_title": "Capture This",
+        "default_icon": {
+            "16": "icons/light/button.svg",
+            "32": "icons/light/button.svg"
+        },
+        "theme_icons": [{
+            "light": "icons/dark/button.svg",
+            "dark": "icons/light/button.svg",
+            "size": 16
+        }, {
+            "light": "icons/dark/button.svg",
+            "dark": "icons/light/button.svg",
+            "size": 32
+        }],
+        "browser_style": false
+    },
+    "options_ui": {
+        "page": "options.html",
+        "browser_style": true
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Alt+T",
+                "mac": "MacCtrl+Shift+T"
+            }
+        }
+    }
+}

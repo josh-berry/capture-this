@@ -1,0 +1,10 @@
+# Large image files for the AMO listing
+marketing
+
+# Generated during build
+node_modules
+dist/*.js
+dist/*.js.map
+
+# Release engineering
+releases
