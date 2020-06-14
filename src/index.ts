@@ -1,5 +1,8 @@
 browser.browserAction.onClicked.addListener(asyncEvent(async (e) => {
-    const info = (await browser.tabs.executeScript(undefined, {
+    const curtab = (await browser.tabs.query({active: true}))[0];
+    if (! curtab) return;
+
+    const info = (await browser.tabs.executeScript(curtab.id, {
         code: `(${getTabInfo.toString()})()`,
     }))[0] as TabInfo;
 
@@ -15,6 +18,7 @@ browser.browserAction.onClicked.addListener(asyncEvent(async (e) => {
         // If it's an application, close it immediately after calling the app.
         default:
             await browser.tabs.remove(tab.id!);
+            await browser.tabs.update(curtab.id, {active: true});
             break;
     }
 }));
