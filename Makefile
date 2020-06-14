@@ -98,6 +98,5 @@ distclean: clean
 .PHONY: distclean
 
 clean:
-	rm -f dist/*.js dist/*.js.map
-	find dist -type f -name .DS_Store -exec rm {} ';'
+	rm -rf dist
 .PHONY: clean

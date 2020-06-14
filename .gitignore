@@ -3,8 +3,7 @@ marketing
 
 # Generated during build
 node_modules
-dist/*.js
-dist/*.js.map
+dist
 
 # Release engineering
 releases

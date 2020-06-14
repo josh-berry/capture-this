@@ -1,10 +1,22 @@
 browser.browserAction.onClicked.addListener(asyncEvent(async (e) => {
-    const curtab = await browser.tabs.getCurrent();
-    const info = (await browser.tabs.executeScript(curtab.id, {
+    const info = (await browser.tabs.executeScript(undefined, {
         code: `(${getTabInfo.toString()})()`,
     }))[0] as TabInfo;
-    const launchtab = await browser.tabs.create({url: await buildURL(info)})
 
+    const url = await buildURL(info);
+    const validURL = new URL(url);
+
+    const tab = await browser.tabs.create({url});
+    switch (validURL.protocol) {
+        // If it's a webpage, leave it open
+        case 'http:': case 'https:': case 'ftp:':
+            break;
+
+        // If it's an application, close it immediately after calling the app.
+        default:
+            await browser.tabs.remove(tab.id!);
+            break;
+    }
 }));
 
 type TabInfo = {
@@ -17,10 +29,10 @@ async function buildURL(info: TabInfo): Promise<string> {
     const e = {
         title: encodeURIComponent(info.title),
         url: encodeURIComponent(info.url),
-        selectedText: encodeURIComponent(info.selectedText),
+        selection: encodeURIComponent(info.selectedText),
     };
 
-    return `omnifocus:///add?name=${e.selectedText}&note=${e.title}%0A${e.url}`;
+    return `omnifocus:///add?name=${e.selection}&note=${e.title}%0A${e.url}`;
 }
 
 // This function is never executed directly, but is injected into a user tab to
