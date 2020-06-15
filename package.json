@@ -20,6 +20,7 @@
     "vue-template-compiler": "*",
     "web-ext": "*",
     "web-ext-types": "*",
+    "webextension-polyfill": "^0.6.0",
     "webpack": "*",
     "webpack-cli": "*"
   },
