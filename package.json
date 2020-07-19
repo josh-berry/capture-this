@@ -19,13 +19,12 @@
     "vue-loader": "*",
     "vue-template-compiler": "*",
     "web-ext": "*",
-    "web-ext-types": "*",
-    "webextension-polyfill": "^0.6.0",
+    "webextension-polyfill-ts": "^0.19.0",
     "webpack": "*",
     "webpack-cli": "*"
   },
   "scripts": {
-    "build": "webpack && copyfiles -u 1 assets/* dist",
+    "build": "webpack && copyfiles -u 1 'assets/**/*' dist",
     "build-rel": "webpack --mode production --devtool nosources-source-map && copyfiles -u 1 assets/* dist",
     "test": "mocha ./dist/test.js"
   }

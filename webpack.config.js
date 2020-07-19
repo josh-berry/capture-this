@@ -5,7 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = {
     entry: {
         "index": "./src/index.ts",
-        "options": "./src/options.ts",
+        "options": "./src/options.vue",
         "test": "./src/test/index.ts",
     },
     mode: "development",

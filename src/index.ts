@@ -1,6 +1,7 @@
-if (! globalThis.browser) (<any>globalThis.browser) = require("webextension-polyfill");
+import {browser} from 'webextension-polyfill-ts';
+import options from './options';
 
-browser.browserAction.onClicked.addListener(asyncEvent(async (e) => {
+browser.browserAction.onClicked.addListener(async (e) => {
     const curtab = (await browser.tabs.query({active: true}))[0];
     if (! curtab) return;
 
@@ -11,7 +12,7 @@ browser.browserAction.onClicked.addListener(asyncEvent(async (e) => {
     console.log(url);
     switch (validURL.protocol) {
         // If it's a webpage, open it in a new tab
-        case 'http:': case 'https:': case 'ftp:':
+        case 'http:': case 'https:': case 'ftp:': case 'data:':
             await browser.tabs.create({url});
             break;
 
@@ -21,26 +22,37 @@ browser.browserAction.onClicked.addListener(asyncEvent(async (e) => {
             await runInUserTab(launchAppURL, url);
             break;
     }
-}));
+});
 
 type TabInfo = {
     url: string,
     title: string,
-    selectedText: string,
+    selection: string,
 };
 
+const TEMPLATE_RE = /\$\{([^\}|]+(\|([^}]+))?)\}/g;
+
 async function buildURL(info: TabInfo): Promise<string> {
-    const e = {
-        title: encodeURIComponent(info.title),
-        url: encodeURIComponent(info.url),
-        selection: encodeURIComponent(info.selectedText),
+    const filters: {[k: string]: (_: string) => string} = {
+        uri: encodeURIComponent,
     };
 
+    const template = info.selection
+        ? (options.url_sel || options.url_nosel)
+        : (options.url_nosel || options.url_sel);
+
+    return template.replace(TEMPLATE_RE, (_match, name, _pipe, filt) => {
+        const txt = info[name as keyof TabInfo] ?? '';
+        const filter = filters[filt as keyof typeof filters] ?? encodeURIComponent;
+        return filter(txt);
+    });
+/*
     if (e.selection) {
         return `omnifocus:///add?name=${e.selection}&note=${e.title}%0A${e.url}`;
     } else {
         return `omnifocus:///add?name=${e.title}&note=${e.title}%0A${e.url}`;
     }
+*/
 }
 
 
@@ -52,7 +64,7 @@ async function buildURL(info: TabInfo): Promise<string> {
 const getTabInfo = (): TabInfo => ({
     title: document.title,
     url: window.location.href,
-    selectedText: window.getSelection()?.toString() ?? '',
+    selection: window.getSelection()?.toString() ?? '',
 });
 
 const launchAppURL = (url: string) => {
@@ -91,12 +103,4 @@ async function runInUserTab<F extends (...args: any) => any>(
     return (await browser.tabs.executeScript(undefined, {
         code: `(${fn.toString()}).apply(undefined, ${JSON.stringify(args)})`
     }))[0] as unknown as ReturnType<F>;
-}
-
-function asyncEvent<U, T extends (this: U, ...args: any[]) => Promise<any>>(
-    async_fn: T
-): T {
-    return function(this: U, ...args: any[]): Promise<any> {
-        return async_fn.apply(this, args).catch(console.log);
-    } as T;
 }
