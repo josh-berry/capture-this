@@ -6,6 +6,12 @@
     <label for="sel">URL to open with selected text:</label>
     <textarea name="url_sel" autocomplete="off" spellcheck="false"
               v-model.lazy="options.url_sel"></textarea>
+
+    <hr>
+    <div>
+        <div><strong>Apply Preset:</strong></div>
+        <li><a href="" @click.prevent="presetOmniFocus">OmniFocus</a></li>
+    </div>
 </main>
 </template>
 
@@ -18,6 +24,13 @@ import options from './options';
 const Main = Vue.extend({
     props: {
         options: Object as PropType<typeof options>,
+    },
+
+    methods: {
+        presetOmniFocus() {
+            this.options.url_nosel = 'omnifocus:///add?name=${title}&note=${title}%0A${url}';
+            this.options.url_sel = 'omnifocus:///add?name=${selection}&note=${title}%0A${url}%0A%0A${selection}';
+        }
     },
 });
 export default Main;

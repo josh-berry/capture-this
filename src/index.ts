@@ -46,13 +46,6 @@ async function buildURL(info: TabInfo): Promise<string> {
         const filter = filters[filt as keyof typeof filters] ?? encodeURIComponent;
         return filter(txt);
     });
-/*
-    if (e.selection) {
-        return `omnifocus:///add?name=${e.selection}&note=${e.title}%0A${e.url}`;
-    } else {
-        return `omnifocus:///add?name=${e.title}&note=${e.title}%0A${e.url}`;
-    }
-*/
 }
 
 
