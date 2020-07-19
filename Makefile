@@ -21,7 +21,9 @@ DIST_PKG = $(RELEASE_DIR)/$(PACKAGE)-$(FULL_VERSION).zip
 debug: build-dbg
 .PHONY: debug
 
-rel: release-tag pkg-webext pkg-source
+rel:
+	make distclean
+	make release-tag pkg-webext pkg-source
 	make -C $(RELEASE_DIR)/$(SRCPKG_DIR) release-tag pkg-webext pkg-source
 	[ -z "$$(diff -Nru dist $(RELEASE_DIR)/$(SRCPKG_DIR)/dist)" ]
 	rm -rf $(RELEASE_DIR)/$(SRCPKG_DIR)
@@ -46,10 +48,36 @@ up:
 
 
 
-# Intermediate targets.
-#
-# Rather than calling webpack directly, we invoke npm here so that Windows users
-# still have a way to build.
+# Builds
+
+build-dbg: node_modules icons
+	npm run build
+	npm run test
+.PHONY: build-dbg
+
+ICONS := $(foreach icon,$(wildcard assets/icons/*.svg),\
+			$(foreach size,16 32 48 96,\
+				$(patsubst assets/icons/%.svg,dist/icons/%-$(size).png,$(icon))))
+icons: $(ICONS)
+.PHONY: icons
+
+dist/%-16.png: assets/%.svg
+	mkdir -p $(dir $@)
+	inkscape -e "$@" "$<" -w 16 -h 16
+dist/%-32.png: assets/%.svg
+	mkdir -p $(dir $@)
+	inkscape -e "$@" "$<" -w 32 -h 32
+dist/%-48.png: assets/%.svg
+	mkdir -p $(dir $@)
+	inkscape -e "$@" "$<" -w 48 -h 48
+dist/%-96.png: assets/%.svg
+	mkdir -p $(dir $@)
+	inkscape -e "$@" "$<" -w 96 -h 96
+
+
+
+# Releases
+
 pkg-webext: clean-working-tree build-rel
 	mkdir -p $(RELEASE_DIR)
 	cd dist && zip -9rvo ../$(DIST_PKG) `find . -type f -not -name 'test.*'`
@@ -64,12 +92,7 @@ pkg-source: clean-working-tree
 	tar -C $(RELEASE_DIR) -czf $(SRC_PKG) $(SRCPKG_DIR)
 .PHONY: pkg-source
 
-build-dbg: node_modules
-	npm run build
-	npm run test
-.PHONY: build-dbg
-
-build-rel: node_modules clean
+build-rel: node_modules icons
 	npm run build-rel
 	npm run test
 	./node_modules/.bin/web-ext lint -s dist -i 'test.*'
@@ -86,13 +109,20 @@ clean-working-tree:
 .PHONY: clean-working-tree
 .NOTPARALLEL: clean-working-tree
 
+
+
+# Dependencies
+
 node_modules package-lock.json: package.json
 	npm install
 	touch node_modules package-lock.json
 
 node_modules: package-lock.json
 
+
+
 # Cleanup targets
+
 distclean: clean
 	rm -rf node_modules $(RELEASE_DIR)/$(SRCPKG_DIR) $(SRC_PKG) $(DIST_PKG)
 .PHONY: distclean

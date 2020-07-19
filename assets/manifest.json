@@ -5,8 +5,8 @@
     "description": "Capture text from a page and send it to the URL of your choice",
     "homepage_url": "https://github.com/josh-berry/capture-this/",
     "icons": {
-        "48": "light-logo.svg",
-        "96": "light-logo.svg"
+        "48": "light-logo-48.png",
+        "96": "light-logo-96.png"
     },
     "applications": {
         "gecko": {
@@ -26,16 +26,16 @@
     "browser_action": {
         "default_title": "Capture This",
         "default_icon": {
-            "16": "light-logo.svg",
-            "32": "light-logo.svg"
+            "16": "light-logo-16.png",
+            "32": "light-logo-32.png"
         },
         "theme_icons": [{
-            "light": "light-logo.svg",
-            "dark": "light-logo.svg",
+            "light": "light-logo-16.png",
+            "dark": "light-logo-16.png",
             "size": 16
         }, {
-            "light": "light-logo.svg",
-            "dark": "light-logo.svg",
+            "light": "light-logo-32.png",
+            "dark": "light-logo-32.png",
             "size": 32
         }],
         "browser_style": false
