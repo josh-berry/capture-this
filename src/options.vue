@@ -11,6 +11,7 @@
     <div>
         <div><strong>Apply Preset:</strong></div>
         <li><a href="" @click.prevent="presetOmniFocus">OmniFocus</a></li>
+        <li><A href="" @click.prevent="presetThings">Things</a></li>
     </div>
 </main>
 </template>
@@ -30,7 +31,11 @@ const Main = Vue.extend({
         presetOmniFocus() {
             this.options.url_nosel = 'omnifocus:///add?name=${title}&note=${title}%0A${url}';
             this.options.url_sel = 'omnifocus:///add?name=${selection}&note=${title}%0A${url}%0A%0A${selection}';
-        }
+        },
+        presetThings() {
+            this.options.url_nosel = 'things:///add?title=${title}&notes=${title}%0A${url}&show-quick-entry=true';
+            this.options.url_sel = 'things:///add?title=${selection}&notes=${title}%0A${url}%0A%0A${selection}&show-quick-entry=true';
+        },
     },
 });
 export default Main;
