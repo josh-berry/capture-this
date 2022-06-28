@@ -1,14 +1,14 @@
 <template>
-<main :class="{[$style.main]: true}">
+<main>
     <label for="url_nosel">URL to open without any selected text:</label>
     <textarea name="url_nosel" autocomplete="off" spellcheck="false"
               v-model="options.url_nosel"></textarea>
-    <div v-if="! isNoselUrlValid" :class="{[$style.error]: true}">URL not valid</div>
+    <div v-if="! isNoselUrlValid" :class="$style.error">Invalid URL</div>
 
     <label for="sel">URL to open with selected text:</label>
     <textarea name="url_sel" autocomplete="off" spellcheck="false"
               v-model="options.url_sel"></textarea>
-    <div v-if="! isSelUrlValid" :class="{[$style.error]: true}">URL not valid</div>
+    <div v-if="! isSelUrlValid" :class="$style.error">Invalid URL</div>
 
     <label><strong>Apply Preset:</strong></label>
     <ul>
@@ -65,7 +65,7 @@ launch(Main, async() => ({propsData: {options}}));
 html {
     min-width: 40rem;
 }
-.main {
+main {
     display: grid;
     grid-template-rows: 1fr;
     row-gap: 1ex;
