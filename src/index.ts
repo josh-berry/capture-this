@@ -23,7 +23,7 @@ browser.contextMenus.onClicked.addListener(async ev => {
         info = {title: tab.title ?? '', url: tab.url ?? '', selection: ev.selectionText ?? ''};
     }
 
-    await launchURL(new URL(buildURL(info)));
+    await launchURL(buildURL(info));
 });
 
 browser.browserAction.onClicked.addListener(async (e) => {
@@ -31,7 +31,7 @@ browser.browserAction.onClicked.addListener(async (e) => {
     if (! curtab) return;
 
     const info = await runInUserTab(getTabInfo);
-    await launchURL(new URL(buildURL(info)));
+    await launchURL(buildURL(info));
 });
 
 
@@ -54,19 +54,29 @@ function buildURL(info: TabInfo): string {
     });
 }
 
-async function launchURL(url: URL) {
-    console.log(url);
-    switch (url.protocol) {
-        // If it's a webpage, open it in a new tab
-        case 'http:': case 'https:': case 'ftp:': case 'data:':
-            await browser.tabs.create({url: url.href});
-            break;
+async function launchURL(url_text: string) {
+    console.log(`[Capture This] Opening URL: ${url_text}`);
 
-        // If it's an application, launch it by piggybacking off the current
-        // tab, which avoids all kinds of weird lifecycle issues...
-        default:
-            await runInUserTab(launchAppURL, url.href);
-            break;
+    try {
+        const url = new URL(url_text);
+        switch (url.protocol) {
+            // If it's a webpage, open it in a new tab
+            case 'http:': case 'https:': case 'ftp:': case 'data:':
+                await browser.tabs.create({url: url.href});
+                break;
+
+            // If it's an application, launch it by piggybacking off the current
+            // tab, which avoids all kinds of weird lifecycle issues...
+            default:
+                await runInUserTab(launchAppURL, url.href);
+                break;
+        }
+
+    } catch (e) {
+        // Show the options page if we hit an error, because the URL is probably
+        // invalid somehow.
+        console.log(e);
+        browser.runtime.openOptionsPage();
     }
 }
 
@@ -87,7 +97,6 @@ const launchAppURL = (url: string) => {
     // never appears to the user, and (b) the load event is never fired before
     // we've actually registered for it, so the iframe will always be cleaned up
     // at the end.
-    console.log(`[Capture This] Opening URL: ${url}`);
 
     const el = document.createElement('iframe');
     el.style.display = "none";

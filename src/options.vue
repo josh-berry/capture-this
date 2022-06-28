@@ -3,16 +3,18 @@
     <label for="url_nosel">URL to open without any selected text:</label>
     <textarea name="url_nosel" autocomplete="off" spellcheck="false"
               v-model="options.url_nosel"></textarea>
+    <div v-if="! isNoselUrlValid" :class="{[$style.error]: true}">URL not valid</div>
+
     <label for="sel">URL to open with selected text:</label>
     <textarea name="url_sel" autocomplete="off" spellcheck="false"
               v-model="options.url_sel"></textarea>
+    <div v-if="! isSelUrlValid" :class="{[$style.error]: true}">URL not valid</div>
 
-    <hr>
-    <div>
-        <div><strong>Apply Preset:</strong></div>
+    <label><strong>Apply Preset:</strong></label>
+    <ul>
         <li><a href="" @click.prevent="presetOmniFocus">OmniFocus</a></li>
         <li><A href="" @click.prevent="presetThings">Things</a></li>
-    </div>
+    </ul>
 </main>
 </template>
 
@@ -25,6 +27,21 @@ import options from './options';
 const Main = defineComponent({
     props: {
         options: {type: Object as PropType<typeof options>, required: true},
+    },
+
+    computed: {
+        isNoselUrlValid() {
+            try {
+                new URL(this.options.url_nosel);
+                return true;
+            } catch (e) { return false; }
+        },
+        isSelUrlValid() {
+            try {
+                new URL(this.options.url_sel);
+                return true;
+            } catch (e) { return false; }
+        }
     },
 
     methods: {
@@ -53,5 +70,24 @@ html {
     grid-template-rows: 1fr;
     row-gap: 1ex;
     column-gap: 1ex;
+}
+label {
+    margin-top: 2ex;
+}
+ul {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.error {
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 10%);
+    color: #c00000;
+}
+
+@media (prefers-color-scheme: dark) {
+    .error {
+        background-color: rgba(255, 255, 255, 10%);
+        color: #ff8080;
+    }
 }
 </style>
