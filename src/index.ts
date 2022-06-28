@@ -36,22 +36,6 @@ browser.browserAction.onClicked.addListener(async (e) => {
 
 
 
-async function launchURL(url: URL) {
-    console.log(url);
-    switch (url.protocol) {
-        // If it's a webpage, open it in a new tab
-        case 'http:': case 'https:': case 'ftp:': case 'data:':
-            await browser.tabs.create({url: url.href});
-            break;
-
-        // If it's an application, launch it by piggybacking off the current
-        // tab, which avoids all kinds of weird lifecycle issues...
-        default:
-            await runInUserTab(launchAppURL, url.href);
-            break;
-    }
-}
-
 const TEMPLATE_RE = /\$\{([^\}|]+(\|([^}]+))?)\}/g;
 
 function buildURL(info: TabInfo): string {
@@ -68,6 +52,22 @@ function buildURL(info: TabInfo): string {
         const filter = filters[filt as keyof typeof filters] ?? encodeURIComponent;
         return filter(txt);
     });
+}
+
+async function launchURL(url: URL) {
+    console.log(url);
+    switch (url.protocol) {
+        // If it's a webpage, open it in a new tab
+        case 'http:': case 'https:': case 'ftp:': case 'data:':
+            await browser.tabs.create({url: url.href});
+            break;
+
+        // If it's an application, launch it by piggybacking off the current
+        // tab, which avoids all kinds of weird lifecycle issues...
+        default:
+            await runInUserTab(launchAppURL, url.href);
+            break;
+    }
 }
 
 
