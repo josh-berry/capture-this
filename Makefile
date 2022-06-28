@@ -63,16 +63,16 @@ icons: $(ICONS)
 
 dist/%-16.png: assets/%.svg
 	mkdir -p $(dir $@)
-	inkscape -e "$@" "$<" -w 16 -h 16
+	inkscape "$<" -o "$@" -D -w 16 -h 16
 dist/%-32.png: assets/%.svg
 	mkdir -p $(dir $@)
-	inkscape -e "$@" "$<" -w 32 -h 32
+	inkscape "$<" -o "$@" -D -w 32 -h 32
 dist/%-48.png: assets/%.svg
 	mkdir -p $(dir $@)
-	inkscape -e "$@" "$<" -w 48 -h 48
+	inkscape "$<" -o "$@" -D -w 48 -h 48
 dist/%-96.png: assets/%.svg
 	mkdir -p $(dir $@)
-	inkscape -e "$@" "$<" -w 96 -h 96
+	inkscape "$<" -o "$@" -D -w 96 -h 96
 
 
 
