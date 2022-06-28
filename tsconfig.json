@@ -1,14 +1,15 @@
 {
     "compilerOptions": {
         "sourceMap": true,
-        "module": "esnext",
+        "esModuleInterop": true,
+        "jsx": "preserve",
+        "module": "commonjs",
         "moduleResolution": "node",
         "noUnusedLocals": true,
         "strict": true,
         "target": "es2017",
         "typeRoots": [
             "node_modules/@types",
-            "node_modules/web-ext-types",
         ]
     },
     "include": [

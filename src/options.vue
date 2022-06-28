@@ -2,10 +2,10 @@
 <main :class="{[$style.main]: true}">
     <label for="url_nosel">URL to open without any selected text:</label>
     <textarea name="url_nosel" autocomplete="off" spellcheck="false"
-              v-model.lazy="options.url_nosel"></textarea>
+              v-model="options.url_nosel"></textarea>
     <label for="sel">URL to open with selected text:</label>
     <textarea name="url_sel" autocomplete="off" spellcheck="false"
-              v-model.lazy="options.url_sel"></textarea>
+              v-model="options.url_sel"></textarea>
 
     <hr>
     <div>
@@ -18,13 +18,13 @@
 
 <script lang="ts">
 import launch from './launch-vue';
-import Vue, {PropType} from 'vue';
+import {defineComponent, PropType} from 'vue';
 
 import options from './options';
 
-const Main = Vue.extend({
+const Main = defineComponent({
     props: {
-        options: Object as PropType<typeof options>,
+        options: {type: Object as PropType<typeof options>, required: true},
     },
 
     methods: {
@@ -40,7 +40,7 @@ const Main = Vue.extend({
 });
 export default Main;
 
-launch(Main, {options});
+launch(Main, async() => ({propsData: {options}}));
 </script>
 
 <style module>

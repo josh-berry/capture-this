@@ -1,27 +1,31 @@
-import {VueConstructor} from 'vue/types/vue';
+import {createApp, MethodOptions, ExtractPropTypes} from 'vue';
 
-type PropsForConstructor<V extends VueConstructor> = V extends {
-    new (options?: {propsData?: infer P}): any;
-} ? P : never;
+export default function launch<
+    C extends {props?: object, provide?: object, methods?: MethodOptions},
+>(
+    component: C,
+    options: () => Promise<{
+        propsData: Readonly<ExtractPropTypes<C["props"]>>,
+        provide?: {[k: string]: any}
+        methods?: MethodOptions & Partial<C["methods"]>,
+    }>,
+): void {
+    const loader = async() => {
+        const opts = await options();
+        const app = createApp({
+            ...component,
+            provide: {
+                ...(component.provide ?? {}),
+                ...(opts.provide ?? {}),
+            },
+            methods: {
+                ...(component.methods ?? {}),
+                ...(opts.methods ?? {}),
+            },
+        }, opts.propsData);
+        Object.assign(<any>globalThis, {app, app_options: opts});
+        app.mount('body');
+    };
 
-type FnOrPropsFor<V extends VueConstructor> =
-    PropsForConstructor<V> | (() => Promise<PropsForConstructor<V>>);
-
-export default function<V extends VueConstructor>(
-    component: V, props: FnOrPropsFor<V>,
-) {
-    window.addEventListener('load', () => {
-        const run = (props: PropsForConstructor<V>) => {
-            const vue = new component({propsData: props});
-            vue.$mount('main');
-
-            Object.assign(<any>globalThis, {vue, props});
-        };
-
-        if (props instanceof Function) {
-            props().then(run).catch(console.error);
-        } else {
-            run(props);
-        }
-    });
+    window.addEventListener('load', loader);
 }

@@ -1,15 +1,20 @@
 const path = require("path");
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const VueLoaderPlugin = require('vue-loader/dist/plugin').default;
 const TerserPlugin = require('terser-webpack-plugin');
+const {DefinePlugin} = require("webpack");
 
-module.exports = {
+module.exports = env => ({
     entry: {
         "index": "./src/index.ts",
         "options": "./src/options.vue",
         "test": "./src/test/index.ts",
     },
-    mode: "development",
-    devtool: "eval-source-map",
+    mode: env,
+    devtool: "inline-source-map",
+    cache: {
+        type: 'filesystem',
+        buildDependencies: { config: [__filename] },
+    },
     module: {
         rules: [
             {test: /\.vue$/, loader: 'vue-loader'},
@@ -18,7 +23,10 @@ module.exports = {
             {test: /\.svg$/, loader: 'file-loader'},
             {test: /\.css$/, use: [
                 'vue-style-loader',
-                {loader: 'css-loader', options: {modules: true}},
+                {loader: 'css-loader', options: {
+                    esModule: false, // to make css-loader 4.x work with vue
+                    modules: true,
+                }},
             ]},
         ],
     },
@@ -26,11 +34,15 @@ module.exports = {
         modules: [path.resolve(__dirname, 'src'), 'node_modules'],
         extensions: ['.ts', '.js', '.vue', '.json'],
         alias: {
-            'vue$': 'vue/dist/vue.runtime.esm'
+            'vue$': 'vue/dist/vue.runtime.esm-bundler'
         },
     },
     plugins: [
         new VueLoaderPlugin(),
+        new DefinePlugin({
+            __VUE_OPTIONS_API__: JSON.stringify(true),
+            __VUE_PROD_DEVTOOLS__: JSON.stringify(env === 'development'),
+        }),
     ],
 
     optimization: {
@@ -46,9 +58,12 @@ module.exports = {
         // as similar as possible--have seen test failures in release builds
         // when this isn't done.
         minimize: true,
+
+        // Enable some options for deterministic builds
+        portableRecords: true,
     },
 
     output: {
         path: path.resolve(__dirname, "dist"),
     }
-};
+});

@@ -1,5 +1,5 @@
-import {browser} from 'webextension-polyfill-ts';
-import Vue from 'vue';
+import browser from 'webextension-polyfill';
+import {reactive} from 'vue';
 
 function intercept<O extends {[k: string]: any}>(
     object: O,
@@ -30,7 +30,7 @@ function intercept_all<O extends {[k: string]: any}>(
     return intercept(object, setters);
 }
 
-const OPTIONS = Vue.observable({
+const OPTIONS = reactive({
     url_nosel: "",
     url_sel: "",
 });
