@@ -1,19 +1,34 @@
 <template>
 <main>
-    <label for="url_nosel">URL to open without any selected text:</label>
-    <textarea name="url_nosel" autocomplete="off" spellcheck="false"
-              v-model="options.url_nosel"></textarea>
-    <div v-if="! isNoselUrlValid" :class="$style.error">Invalid URL</div>
+    <label for="url">URL to open without any selected text:</label>
+    <textarea name="url" autocomplete="off" spellcheck="false"
+              v-model="options.url"></textarea>
+    <div v-if="errors.url" :class="$style.error">{{errors.url}}</div>
 
-    <label for="sel">URL to open with selected text:</label>
-    <textarea name="url_sel" autocomplete="off" spellcheck="false"
-              v-model="options.url_sel"></textarea>
-    <div v-if="! isSelUrlValid" :class="$style.error">Invalid URL</div>
+    <label for="urlWithSelection">URL to open with selected text:</label>
+    <textarea name="urlWithSelection" autocomplete="off" spellcheck="false"
+              v-model="options.urlWithSelection"></textarea>
+    <div v-if="errors.urlWithSelection" :class="$style.error">{{errors.urlWithSelection}}</div>
+
+    <label for="urlWithLink">URL to open with selected link:</label>
+    <textarea name="urlWithLink" autocomplete="off" spellcheck="false"
+              v-model="options.urlWithLink"></textarea>
+    <div v-if="errors.urlWithLink" :class="$style.error">{{errors.urlWithLink}}</div>
 
     <label><strong>Apply Preset:</strong></label>
     <ul>
         <li><a href="" @click.prevent="presetOmniFocus">OmniFocus</a></li>
         <li><A href="" @click.prevent="presetThings">Things</a></li>
+    </ul>
+
+    <label><strong>Variables:</strong></label>
+    <ul>
+        <li><tt>${pageTitle}</tt> - The page title</li>
+        <li><tt>${pageUrl}</tt> - The URL of the open page</li>
+        <li><tt>${linkTitle}</tt> - The title of the link (if any), only applies when right-clicking on a link</li>
+        <li><tt>${linkUrl}</tt> - The URL of the link (if any), only applies when right-clicking on a link</li>
+        <li><tt>${selection}</tt> - Any text which is selected on the page
+        (often same as linkUrl)</li>
     </ul>
 </main>
 </template>
@@ -24,34 +39,40 @@ import {defineComponent, PropType} from 'vue';
 
 import options from './options';
 
+function urlError(url: string): string {
+    try {
+        new URL(url);
+        return '';
+    } catch (e) {
+        return 'Invalid URL';
+    }
+}
+
 const Main = defineComponent({
     props: {
         options: {type: Object as PropType<typeof options>, required: true},
     },
 
     computed: {
-        isNoselUrlValid() {
-            try {
-                new URL(this.options.url_nosel);
-                return true;
-            } catch (e) { return false; }
+        errors(): {[k in keyof typeof options]: string} {
+            return {
+                urlWithLink: urlError(this.options.urlWithLink),
+                urlWithSelection: urlError(this.options.urlWithSelection),
+                url: urlError(this.options.url),
+            };
         },
-        isSelUrlValid() {
-            try {
-                new URL(this.options.url_sel);
-                return true;
-            } catch (e) { return false; }
-        }
     },
 
     methods: {
         presetOmniFocus() {
-            this.options.url_nosel = 'omnifocus:///add?name=${title}&note=${title}%0A${url}';
-            this.options.url_sel = 'omnifocus:///add?name=${selection}&note=${title}%0A${url}%0A%0A${selection}';
+            this.options.urlWithLink = 'omnifocus:///add?name=${pageTitle}&note=${linkTitle}%0A${linkUrl}%0A%0A${pageTitle}%0A${pageUrl}';
+            this.options.urlWithSelection = 'omnifocus:///add?name=${selection}&note=${pageTitle}%0A${pageUrl}%0A%0A${selection}';
+            this.options.url = 'omnifocus:///add?name=${pageTitle}&note=${pageTitle}%0A${pageUrl}';
         },
         presetThings() {
-            this.options.url_nosel = 'things:///add?title=${title}&notes=${title}%0A${url}&show-quick-entry=true';
-            this.options.url_sel = 'things:///add?title=${selection}&notes=${title}%0A${url}%0A%0A${selection}&show-quick-entry=true';
+            this.options.urlWithLink = 'things:///add?title=${pageTitle}&notes=${linkTitle}%0A${linkUrl}%0A%0A${pageTitle}%0A${pageUrl}&show-quick-entry=true';
+            this.options.urlWithSelection = 'things:///add?title=${selection}&notes=${pageTitle}%0A${pageUrl}%0A%0A${selection}&show-quick-entry=true';
+            this.options.url = 'things:///add?title=${pageTitle}&notes=${pageTitle}%0A${pageUrl}&show-quick-entry=true';
         },
     },
 });

@@ -31,8 +31,9 @@ function intercept_all<O extends {[k: string]: any}>(
 }
 
 const OPTIONS = reactive({
-    url_nosel: "",
-    url_sel: "",
+    urlWithLink: "",
+    urlWithSelection: "",
+    url: "",
 });
 
 (async() => {

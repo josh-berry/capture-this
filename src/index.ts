@@ -2,34 +2,26 @@ import browser from 'webextension-polyfill';
 import options from './options';
 
 type TabInfo = {
-    url: string,
-    title: string,
+    pageTitle: string,
+    pageUrl: string,
+    linkTitle: string,
+    linkUrl: string,
     selection: string,
 };
 
 browser.contextMenus.create({id: 'capture', title: "Capture This", contexts: ['link', 'page', 'selection']});
 
 browser.contextMenus.onClicked.addListener(async ev => {
-    let info: TabInfo;
-
-    if (ev.linkUrl) {
-        const title = ev.linkText ?? ev.selectionText ?? ev.linkUrl;
-        info = {title, url: ev.linkUrl, selection: ''};
-
-    } else {
-        const tab = (await browser.tabs.query({active: true}))[0];
-        if (! tab) return;
-
-        info = {title: tab.title ?? '', url: tab.url ?? '', selection: ev.selectionText ?? ''};
-    }
+    const info: TabInfo = {
+        ...(await runInUserTab(getTabInfo)),
+        linkTitle: ev.linkText || ev.selectionText || '',
+        linkUrl: ev.linkUrl || '',
+    };
 
     await launchURL(buildURL(info));
 });
 
 browser.browserAction.onClicked.addListener(async (e) => {
-    const curtab = (await browser.tabs.query({active: true}))[0];
-    if (! curtab) return;
-
     const info = await runInUserTab(getTabInfo);
     await launchURL(buildURL(info));
 });
@@ -43,9 +35,14 @@ function buildURL(info: TabInfo): string {
         uri: encodeURIComponent,
     };
 
-    const template = info.selection
-        ? (options.url_sel || options.url_nosel)
-        : (options.url_nosel || options.url_sel);
+    let template = '';
+    if (info.linkUrl) {
+        template = options.urlWithLink || options.urlWithSelection || options.url;
+    } else if (info.selection) {
+        template = options.urlWithSelection || options.url || options.urlWithLink;
+    } else {
+        template = options.url || options.urlWithSelection || options.urlWithLink;
+    }
 
     return template.replace(TEMPLATE_RE, (_match, name, _pipe, filt) => {
         const txt = info[name as keyof TabInfo] ?? '';
@@ -87,8 +84,10 @@ async function launchURL(url_text: string) {
 // This function is never executed directly, but is injected into a user tab to
 // fetch details about what's in that tab.
 const getTabInfo = (): TabInfo => ({
-    title: document.title,
-    url: window.location.href,
+    pageTitle: document.title,
+    pageUrl: window.location.href,
+    linkTitle: '', // Filled in later
+    linkUrl: '', // Filled in later
     selection: window.getSelection()?.toString() ?? '',
 });
 
