@@ -1,7 +1,9 @@
 PACKAGE := capture-this
 VERSION := $(shell node -e "x=`cat assets/manifest.json`; console.log(x.version)")
 COMMIT := $(shell git rev-parse --short HEAD)
-FULL_VERSION := $(VERSION)-$(COMMIT)
+DEV_TAG := $(if $(shell git tag --points-at=HEAD),,-dev)
+DIRTY_TAG := $(if $(shell git status --porcelain),-dirty,)
+FULL_VERSION := $(VERSION)$(DEV_TAG)-$(COMMIT)$(DIRTY_TAG)
 
 ifeq ($(VERSION),)
 $(error Unable to determine the current version number)
@@ -22,9 +24,15 @@ debug: build-dbg
 .PHONY: debug
 
 rel:
-	make distclean
-	make release-tag pkg-webext pkg-source
-	make -C $(RELEASE_DIR)/$(SRCPKG_DIR) release-tag pkg-webext pkg-source
+	$(MAKE) distclean release-tag
+	$(MAKE) rel-inner
+.PHONY: rel
+
+# rel-inner is separate from rel since the version-number variables at the top
+# of this file will change after the release tag is created.
+rel-inner:
+	$(MAKE) pkg-webext pkg-source
+	$(MAKE) -C $(RELEASE_DIR)/$(SRCPKG_DIR) release-tag pkg-webext pkg-source
 	[ -z "$$(diff -Nru dist $(RELEASE_DIR)/$(SRCPKG_DIR)/dist)" ]
 	rm -rf $(RELEASE_DIR)/$(SRCPKG_DIR)
 	@echo ""
@@ -34,10 +42,10 @@ rel:
 	@echo "Release package: $(DIST_PKG)"
 	@echo "Source package:  $(SRC_PKG)"
 	@echo
-	@echo "If everything looks good, run \"git push --tags\", and"
+	@echo "If everything looks good, run \"git push && git push --tags\", and"
 	@echo "upload to AMO."
 	@echo ""
-.PHONY: rel
+.PHONY: rel-inner
 
 # My version of `npm update`, since `npm update` seems to leave stale stuff
 # lying around in package-lock.json. :/
