@@ -17,8 +17,7 @@
 
     <label><strong>Apply Preset:</strong></label>
     <ul>
-        <li><a href="" @click.prevent="presetOmniFocus">OmniFocus</a></li>
-        <li><A href="" @click.prevent="presetThings">Things</a></li>
+        <li v-for="preset of PRESETS"><a href="" @click.prevent="applyPreset(preset)">{{preset.title}}</a></li>
     </ul>
 
     <label><strong>Variables:</strong></label>
@@ -39,6 +38,28 @@ import {defineComponent, PropType} from 'vue';
 
 import options from './options';
 
+type Preset = {
+    title: string,
+    urlWithLink: string,
+    urlWithSelection: string,
+    url: string,
+};
+
+const PRESETS: Preset[] = [
+    {
+        title: 'OmniFocus',
+        urlWithLink: 'omnifocus:///add?name=${pageTitle}&note=${linkTitle}%0A${linkUrl}%0A%0A${pageTitle}%0A${pageUrl}',
+        urlWithSelection: 'omnifocus:///add?name=${selection}&note=${pageTitle}%0A${pageUrl}%0A%0A${selection}',
+        url: 'omnifocus:///add?name=${pageTitle}&note=${pageTitle}%0A${pageUrl}',
+    },
+    {
+        title: 'Things',
+        urlWithLink: 'things:///add?title=${pageTitle}&notes=${linkTitle}%0A${linkUrl}%0A%0A${pageTitle}%0A${pageUrl}&show-quick-entry=true',
+        urlWithSelection: 'things:///add?title=${selection}&notes=${pageTitle}%0A${pageUrl}%0A%0A${selection}&show-quick-entry=true',
+        url: 'things:///add?title=${pageTitle}&notes=${pageTitle}%0A${pageUrl}&show-quick-entry=true',
+    },
+];
+
 function urlError(url: string): string {
     try {
         new URL(url);
@@ -54,6 +75,7 @@ const Main = defineComponent({
     },
 
     computed: {
+        PRESETS(): Preset[] { return PRESETS; },
         errors(): {[k in keyof typeof options]: string} {
             return {
                 urlWithLink: urlError(this.options.urlWithLink),
@@ -64,15 +86,10 @@ const Main = defineComponent({
     },
 
     methods: {
-        presetOmniFocus() {
-            this.options.urlWithLink = 'omnifocus:///add?name=${pageTitle}&note=${linkTitle}%0A${linkUrl}%0A%0A${pageTitle}%0A${pageUrl}';
-            this.options.urlWithSelection = 'omnifocus:///add?name=${selection}&note=${pageTitle}%0A${pageUrl}%0A%0A${selection}';
-            this.options.url = 'omnifocus:///add?name=${pageTitle}&note=${pageTitle}%0A${pageUrl}';
-        },
-        presetThings() {
-            this.options.urlWithLink = 'things:///add?title=${pageTitle}&notes=${linkTitle}%0A${linkUrl}%0A%0A${pageTitle}%0A${pageUrl}&show-quick-entry=true';
-            this.options.urlWithSelection = 'things:///add?title=${selection}&notes=${pageTitle}%0A${pageUrl}%0A%0A${selection}&show-quick-entry=true';
-            this.options.url = 'things:///add?title=${pageTitle}&notes=${pageTitle}%0A${pageUrl}&show-quick-entry=true';
+        applyPreset(preset: Preset) {
+            this.options.urlWithLink = preset.urlWithLink;
+            this.options.urlWithSelection = preset.urlWithSelection;
+            this.options.url = preset.url;
         },
     },
 });
