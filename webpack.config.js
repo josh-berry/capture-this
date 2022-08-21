@@ -6,7 +6,7 @@ const {DefinePlugin} = require("webpack");
 module.exports = env => ({
     entry: {
         "index": "./src/index.ts",
-        "options": "./src/options.vue",
+        "options-ui": "./src/options-ui.ts",
         "test": "./src/test/index.ts",
     },
     mode: env,

@@ -33,10 +33,7 @@
 </template>
 
 <script lang="ts">
-import launch from './launch-vue';
 import {defineComponent, PropType} from 'vue';
-
-import options from './options';
 
 type Preset = {
     title: string,
@@ -69,7 +66,7 @@ function urlError(url: string): string {
     }
 }
 
-const Main = defineComponent({
+export default defineComponent({
     props: {
         options: {type: Object as PropType<typeof options>, required: true},
     },
@@ -93,9 +90,7 @@ const Main = defineComponent({
         },
     },
 });
-export default Main;
 
-launch(Main, async() => ({propsData: {options}}));
 </script>
 
 <style module>

@@ -8,10 +8,10 @@
         "48": "icons/logo-48.png",
         "96": "icons/logo-96.png"
     },
-    "applications": {
+    "browser_specific_settings": {
         "gecko": {
             "id": "capture-this@josh-berry.github.io",
-            "strict_min_version": "61.0"
+            "strict_min_version": "72.0"
         }
     },
     "permissions": [
