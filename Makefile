@@ -63,25 +63,6 @@ build-dbg: node_modules icons
 	npm run test
 .PHONY: build-dbg
 
-ICONS := $(foreach icon,$(wildcard assets/icons/*.svg),\
-			$(foreach size,16 32 48 96,\
-				$(patsubst assets/icons/%.svg,dist/icons/%-$(size).png,$(icon))))
-icons: $(ICONS)
-.PHONY: icons
-
-dist/%-16.png: assets/%.svg
-	mkdir -p $(dir $@)
-	inkscape "$<" -o "$@" -D -w 16 -h 16
-dist/%-32.png: assets/%.svg
-	mkdir -p $(dir $@)
-	inkscape "$<" -o "$@" -D -w 32 -h 32
-dist/%-48.png: assets/%.svg
-	mkdir -p $(dir $@)
-	inkscape "$<" -o "$@" -D -w 48 -h 48
-dist/%-96.png: assets/%.svg
-	mkdir -p $(dir $@)
-	inkscape "$<" -o "$@" -D -w 96 -h 96
-
 
 
 # Releases
@@ -126,6 +107,47 @@ node_modules package-lock.json: package.json
 	touch node_modules package-lock.json
 
 node_modules: package-lock.json
+
+
+
+# Icons
+# (Makefile code copied from Tab Stash)
+
+DARK_ICONS = $(patsubst icons/%,dist/icons/dark/%,$(wildcard icons/*.svg))
+LIGHT_ICONS = $(patsubst icons/%,dist/icons/light/%,$(wildcard icons/*.svg))
+LOGO_ICONS = dist/icons/logo.svg \
+	$(foreach size,48 96 128,dist/icons/logo-$(size).png)
+TOOLBAR_ICONS = \
+	$(foreach size,16 32,dist/icons/logo-$(size).png) \
+	$(foreach theme,dark light,$(foreach size,16 32,dist/icons/$(theme)/logo-$(size).png))
+
+icons: $(DARK_ICONS) $(LIGHT_ICONS) $(LOGO_ICONS) $(TOOLBAR_ICONS)
+.PHONY: icons
+
+dist/icons/dark/%.svg: icons/%.svg
+	@mkdir -p $(dir $@)
+	sed 's%style="[^"]*"%style="fill:#fbfbfe"%g' <$< >$@
+
+dist/icons/%.svg: icons/%.svg
+	@mkdir -p $(dir $@)
+	sed 's%style="[^"]*"%style="fill:#808080"%g' <$< >$@
+
+dist/icons/light/%.svg: icons/%.svg
+	@mkdir -p $(dir $@)
+	sed 's%style="[^"]*"%style="fill:#222426"%g' <$< >$@
+
+%-16.png: %.svg
+	inkscape "$<" -o "$@" -D -w 16 -h 16
+%-32.png: %.svg
+	inkscape "$<" -o "$@" -D -w 32 -h 32
+%-48.png: %.svg
+	inkscape "$<" -o "$@" -D -w 48 -h 48
+%-64.png: %.svg
+	inkscape "$<" -o "$@" -D -w 64 -h 64
+%-96.png: %.svg
+	inkscape "$<" -o "$@" -D -w 96 -h 96
+%-128.png: %.svg
+	inkscape "$<" -o "$@" -D -w 128 -h 128
 
 
 

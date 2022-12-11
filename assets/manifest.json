@@ -6,7 +6,8 @@
     "homepage_url": "https://github.com/josh-berry/capture-this/",
     "icons": {
         "48": "icons/logo-48.png",
-        "96": "icons/logo-96.png"
+        "96": "icons/logo-96.png",
+        "128": "icons/logo-128.png"
     },
     "browser_specific_settings": {
         "gecko": {
@@ -27,16 +28,16 @@
     "browser_action": {
         "default_title": "Capture This",
         "default_icon": {
-            "16": "icons/logo-16.png",
-            "32": "icons/logo-32.png"
+            "16": "icons/light/logo-16.png",
+            "32": "icons/light/logo-32.png"
         },
         "theme_icons": [{
-            "light": "icons/logo-16.png",
-            "dark": "icons/logo-16.png",
+            "light": "icons/dark/logo-16.png",
+            "dark": "icons/light/logo-16.png",
             "size": 16
         }, {
-            "light": "icons/logo-32.png",
-            "dark": "icons/logo-32.png",
+            "light": "icons/dark/logo-32.png",
+            "dark": "icons/light/logo-32.png",
             "size": 32
         }],
         "browser_style": false
