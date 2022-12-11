@@ -118,8 +118,8 @@ LIGHT_ICONS = $(patsubst icons/%,dist/icons/light/%,$(wildcard icons/*.svg))
 LOGO_ICONS = dist/icons/logo.svg \
 	$(foreach size,48 96 128,dist/icons/logo-$(size).png)
 TOOLBAR_ICONS = \
-	$(foreach size,16 32,dist/icons/logo-$(size).png) \
-	$(foreach theme,dark light,$(foreach size,16 32,dist/icons/$(theme)/logo-$(size).png))
+	# $(foreach size,16 32,dist/icons/logo-$(size).png) \
+	# $(foreach theme,dark light,$(foreach size,16 32,dist/icons/$(theme)/logo-$(size).png))
 
 icons: $(DARK_ICONS) $(LIGHT_ICONS) $(LOGO_ICONS) $(TOOLBAR_ICONS)
 .PHONY: icons

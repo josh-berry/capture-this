@@ -21,7 +21,7 @@ browser.contextMenus.onClicked.addListener(async ev => {
     await launchURL(buildURL(info));
 });
 
-browser.browserAction.onClicked.addListener(async (e) => {
+browser.pageAction.onClicked.addListener(async (e) => {
     const info = await runInUserTab(getTabInfo);
     await launchURL(buildURL(info));
 });
