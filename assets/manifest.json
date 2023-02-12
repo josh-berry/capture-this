@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Capture This",
   "version": "0.11",
-  "description": "Capture text from a page and send it to the URL of your choice",
+  "description": "Send a link or text from the current tab to the URL of your choice",
   "homepage_url": "https://github.com/josh-berry/capture-this/",
   "icons": {
     "48": "icons/logo-48.png",
