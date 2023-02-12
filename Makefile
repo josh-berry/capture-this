@@ -28,7 +28,7 @@ debug:
 	$(MAKE) check-types
 	$(MAKE) check-style || ( $(MAKE) fix-style && $(MAKE) check-types )
 	$(MAKE) build-dbg
-	# $(MAKE) check-tests
+	$(MAKE) check-tests
 .PHONY: debug
 
 check: check-types check-tests check-style
