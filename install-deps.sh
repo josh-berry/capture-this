@@ -72,5 +72,5 @@ fi
 
 set +ex
 echo
-echo ">>> All done!  You're ready to build Tab Stash."
+echo ">>> All done!  You're ready to build."
 echo
