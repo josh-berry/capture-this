@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Capture This",
-  "version": "0.9",
+  "version": "0.10",
   "description": "Capture text from a page and send it to the URL of your choice",
   "homepage_url": "https://github.com/josh-berry/capture-this/",
   "icons": {
