@@ -1,18 +1,16 @@
 {
-    "compilerOptions": {
-        "sourceMap": true,
-        "esModuleInterop": true,
-        "jsx": "preserve",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "noUnusedLocals": true,
-        "strict": true,
-        "target": "es2017",
-        "typeRoots": [
-            "node_modules/@types",
-        ]
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
     },
-    "include": [
-        "./src/**/*"
-    ]
+
+    "lib": ["ES2019", "DOM", "DOM.Iterable"],
+    "types": ["@types/mocha"],
+
+    "sourceMap": true,
+    "noUnusedLocals": true
+  },
+  "include": ["./src/**/*"]
 }

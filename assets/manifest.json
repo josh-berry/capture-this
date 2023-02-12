@@ -1,57 +1,55 @@
 {
-    "manifest_version": 2,
-    "name": "Capture This",
-    "version": "0.9",
-    "description": "Capture text from a page and send it to the URL of your choice",
-    "homepage_url": "https://github.com/josh-berry/capture-this/",
-    "icons": {
-        "48": "icons/logo-48.png",
-        "96": "icons/logo-96.png",
-        "128": "icons/logo-128.png"
-    },
-    "browser_specific_settings": {
-        "gecko": {
-            "id": "capture-this@josh-berry.github.io",
-            "strict_min_version": "72.0"
-        }
-    },
-    "permissions": [
-        "activeTab",
-        "storage",
-        "contextMenus"
-    ],
-    "content_security_policy":
-        "script-src 'self'; object-src 'self';",
-    "background": {
-        "scripts": ["index.js"]
-    },
-    "page_action": {
-        "default_title": "Capture This",
-        "default_icon": {
-            "19": "icons/light/logo.svg",
-            "38": "icons/light/logo.svg"
-        },
-        "theme_icons": [{
-            "light": "icons/dark/logo.svg",
-            "dark": "icons/light/logo.svg",
-            "size": 19
-        }, {
-            "light": "icons/dark/logo.svg",
-            "dark": "icons/light/logo.svg",
-            "size": 38
-        }],
-        "browser_style": false,
-        "show_matches": ["<all_urls>"]
-    },
-    "options_ui": {
-        "page": "options.html",
-        "browser_style": true
-    },
-    "commands": {
-        "_execute_browser_action": {
-            "suggested_key": {
-                "default": "Ctrl+Shift+C"
-            }
-        }
+  "manifest_version": 2,
+  "name": "Capture This",
+  "version": "0.9",
+  "description": "Capture text from a page and send it to the URL of your choice",
+  "homepage_url": "https://github.com/josh-berry/capture-this/",
+  "icons": {
+    "48": "icons/logo-48.png",
+    "96": "icons/logo-96.png",
+    "128": "icons/logo-128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "capture-this@josh-berry.github.io",
+      "strict_min_version": "72.0"
     }
+  },
+  "permissions": ["activeTab", "storage", "contextMenus"],
+  "content_security_policy": "script-src 'self'; object-src 'self';",
+  "background": {
+    "scripts": ["index.js"]
+  },
+  "page_action": {
+    "default_title": "Capture This",
+    "default_icon": {
+      "19": "icons/light/logo.svg",
+      "38": "icons/light/logo.svg"
+    },
+    "theme_icons": [
+      {
+        "light": "icons/dark/logo.svg",
+        "dark": "icons/light/logo.svg",
+        "size": 19
+      },
+      {
+        "light": "icons/dark/logo.svg",
+        "dark": "icons/light/logo.svg",
+        "size": 38
+      }
+    ],
+    "browser_style": false,
+    "show_matches": ["<all_urls>"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "browser_style": true
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+C"
+      }
+    }
+  }
 }

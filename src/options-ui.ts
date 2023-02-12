@@ -1,7 +1,7 @@
 // istanbul ignore file -- launcher shim for the live UI
 
-import launch from './launch-vue';
+import launch from "./launch-vue";
 
-import options from './options';
+import Main from "./options-ui.vue";
 
-launch(require('./options-ui.vue').default, async() => ({propsData: {options}}));
+launch(Main, async () => ({propsData: {}}));

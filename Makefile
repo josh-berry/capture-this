@@ -1,4 +1,4 @@
-PACKAGE := capture-this
+PACKAGE := $(shell node -e "x=`cat package.json`; console.log(x.name)")
 VERSION := $(shell node -e "x=`cat assets/manifest.json`; console.log(x.version)")
 COMMIT := $(shell git rev-parse --short HEAD)
 DEV_TAG := $(if $(shell git tag --points-at=HEAD),,-dev)
@@ -19,9 +19,36 @@ SRCPKG_DIR = $(PACKAGE)-src-$(FULL_VERSION)
 SRC_PKG = $(RELEASE_DIR)/$(SRCPKG_DIR).tar.gz
 DIST_PKG = $(RELEASE_DIR)/$(PACKAGE)-$(FULL_VERSION).zip
 
-# Primary (user-facing) targets
-debug: build-dbg
+# Primary (user-facing) targets.
+
+# The default target.  This is unrolled so that the things that are most likely
+# to fail and are fastest to fail, fail first, and so that style issues can be
+# automatically fixed.
+debug:
+	$(MAKE) check-types
+	$(MAKE) check-style || ( $(MAKE) fix-style && $(MAKE) check-types )
+	$(MAKE) build-dbg
+	# $(MAKE) check-tests
 .PHONY: debug
+
+check: check-types check-tests check-style
+.PHONY: check
+
+check-types: node_modules
+	./node_modules/.bin/vue-tsc --noEmit
+.PHONY: check-types
+
+check-tests: node_modules
+	./node_modules/.bin/nyc --reporter=text --reporter=lcov --reporter=html ./node_modules/.bin/mocha
+.PHONY: check-tests
+
+check-style: node_modules
+	./node_modules/.bin/prettier --ignore-path .gitignore --check .
+.PHONY: check-style
+
+fix-style: node_modules
+	./node_modules/.bin/prettier --ignore-path .gitignore --write .
+.PHONY: fix-style
 
 rel:
 	$(MAKE) distclean release-tag
@@ -55,37 +82,25 @@ up:
 .PHONY: up
 
 
+##
+## Intermediate targets.
+##
 
-# Builds
-
-build-dbg: node_modules icons
-	npm run build
-	npm run test
-.PHONY: build-dbg
-
-
-
-# Releases
+## Packaging and Release
 
 pkg-webext: clean-working-tree build-rel
 	mkdir -p $(RELEASE_DIR)
-	cd dist && zip -9rvo ../$(DIST_PKG) `find . -type f -not -name 'test.*'`
+	cd dist && zip -9rvo ../$(DIST_PKG) `find . -type f`
 .PHONY: pkg-webext
 
 pkg-source: clean-working-tree
 	mkdir -p $(RELEASE_DIR)
 	rm -rf $(RELEASE_DIR)/$(SRCPKG_DIR) $(SRC_PKG)
-	git fetch -f origin
 	git clone -b v$(VERSION) . $(RELEASE_DIR)/$(SRCPKG_DIR)
+	git -C $(RELEASE_DIR)/$(SRCPKG_DIR) fetch -f origin
 	git -C $(RELEASE_DIR)/$(SRCPKG_DIR) gc --aggressive
 	tar -C $(RELEASE_DIR) -czf $(SRC_PKG) $(SRCPKG_DIR)
 .PHONY: pkg-source
-
-build-rel: node_modules icons
-	npm run build-rel
-	npm run test
-	./node_modules/.bin/web-ext lint -s dist -i 'test.*'
-.PHONY: build-rel
 
 release-tag: clean-working-tree
 	[ `git name-rev --tags --name-only HEAD` = "v$(VERSION)" ] || \
@@ -99,27 +114,38 @@ clean-working-tree:
 .NOTPARALLEL: clean-working-tree
 
 
+## Build
 
-# Dependencies
+build-dbg: node_modules icons
+	./node_modules/.bin/vite build -c vite.config.html.ts -m development
+	./node_modules/.bin/vite build -c vite.config.lib.ts -m development
+	./node_modules/.bin/copyfiles -u 1 'assets/**/*' dist
+.PHONY: build-dbg
 
+build-rel:
+	$(MAKE) clean
+	$(MAKE) node_modules icons
+	$(MAKE) check
+	./node_modules/.bin/vite build -c vite.config.html.ts -m production
+	./node_modules/.bin/vite build -c vite.config.lib.ts -m production
+	./node_modules/.bin/copyfiles -u 1 'assets/**/*' dist
+	./node_modules/.bin/web-ext lint -s dist -i 'test.*'
+.PHONY: build-rel
+
+node_modules: package-lock.json
 node_modules package-lock.json: package.json
 	npm install
 	touch node_modules package-lock.json
 
-node_modules: package-lock.json
-
-
-
-# Icons
-# (Makefile code copied from Tab Stash)
+## Build Icons
 
 DARK_ICONS = $(patsubst icons/%,dist/icons/dark/%,$(wildcard icons/*.svg))
 LIGHT_ICONS = $(patsubst icons/%,dist/icons/light/%,$(wildcard icons/*.svg))
 LOGO_ICONS = dist/icons/logo.svg \
 	$(foreach size,48 96 128,dist/icons/logo-$(size).png)
 TOOLBAR_ICONS = \
-	# $(foreach size,16 32,dist/icons/logo-$(size).png) \
-	# $(foreach theme,dark light,$(foreach size,16 32,dist/icons/$(theme)/logo-$(size).png))
+	$(foreach size,16 32,dist/icons/logo-$(size).png) \
+	$(foreach theme,dark light,$(foreach size,16 32,dist/icons/$(theme)/logo-$(size).png))
 
 icons: $(DARK_ICONS) $(LIGHT_ICONS) $(LOGO_ICONS) $(TOOLBAR_ICONS)
 .PHONY: icons
@@ -150,13 +176,12 @@ dist/icons/light/%.svg: icons/%.svg
 	inkscape "$<" -o "$@" -D -w 128 -h 128
 
 
-
-# Cleanup targets
+## Cleanup
 
 distclean: clean
 	rm -rf node_modules $(RELEASE_DIR)/$(SRCPKG_DIR) $(SRC_PKG) $(DIST_PKG)
 .PHONY: distclean
 
 clean:
-	rm -rf dist
+	rm -rf build.test dist docs/_site .nyc_output coverage
 .PHONY: clean

@@ -4,6 +4,8 @@ marketing
 # Generated during build
 node_modules
 dist
+.nyc_output
+coverage
 
 # Release engineering
 releases
